@@ -24,7 +24,7 @@ client.on('data', function(data) {
 
 
   console.log('DATA: ' + data);
-  //console.log('duration: %d', (new Date().getTime() - startTime) / 1000);
+  console.log('duration: %d', (new Date().getTime() - startTime) / 1000);
   // Close the client socket completely
   //client.destroy();
 
