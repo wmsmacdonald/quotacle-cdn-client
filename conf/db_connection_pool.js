@@ -9,7 +9,7 @@ var pool = mysql.createPool({
   host: 'db.quotacle.com',
   user: credentials[0],
   password: credentials[1],
-  database: 'quotacle'
+  database: 'quotacle_cdn'
 });
 
-module.exports.pool = pool;
+module.exports = pool;

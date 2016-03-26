@@ -2,6 +2,8 @@
 
 var net = require('net');
 
+var password = fs.readFileSync(path.join(__dirname, 'secrets/asset_generator_password.conf')).toString().split('\n')[0];
+
 //var HOST = '127.0.0.1';
 var HOST = 'fgen.quotacle.com';
 var PORT = 5340;
@@ -14,7 +16,7 @@ client.connect(PORT, HOST, function() {
 
   console.log('CONNECTED TO: ' + HOST + ':' + PORT);
   // Write a message to the socket as soon as the client is connected, the server will receive it as message from the client
-  client.write('I am Chuck Norris!');
+  client.write(password);
 
 });
 
