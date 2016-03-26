@@ -1,11 +1,12 @@
-#!/usr/bin/env node
-
-var pool = require('./conf/db');
-var thumbnail = require('./thumbnail');
-var cdnSocket = require('cdn_socket');
+var assetGenerator = require('./asset_generator');
+var getAsset = require('./get_asset');
 
 module.exports = {
-  thumbnail: function(quoteId, callback) {
-    thumbnail(quoteId, pool, cdnSocket, callback);
-  }
+  // both return object with 'data_uri' property
+  getImage: getAsset.getImage,
+  createThumbnail: assetGenerator.createThumbnail,
+
+  // both return object with 'url' property
+  getVideoClip: getAsset.getVideoClip,
+  createVideoClip: assetGenerator.createVideoClip
 };
