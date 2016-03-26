@@ -23,6 +23,6 @@ module.exports.connect = function connect(apiKey, callback) {
       }
     };
 
-    return assetGeneratorConnection;
+    callback(false, assetGeneratorConnection);
   });
 };

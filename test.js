@@ -1,31 +1,49 @@
 var pool = require('./conf/db_connection_pool');
-var cdnClient = require('.');
+//var cdnClient = require('.');
 var testing = require('testing');
 var assetGenerator = require('./asset_generator');
 
 
-var tests = [test_database, test_assetGeneratorConnection]//, test_getExistingImageUri, test_getNonExistingImageUri];
-testing.run(tests, 10000);
+var tests = [
+  test_databaseConnection,
+  test_assetGeneratorConnection,
+  test_assetGeneratorConnectionWrongKey
+];
+testing.run(tests, 10000, function(err, result) {
+  console.log('Failures: %d', result.failures);
+});
 
-function test_database() {
+function test_databaseConnection(callback) {
   pool.getConnection(function (err, connection) {
     if (err) {
-      testing.failure('Could not connect to the database');
+      testing.failure(callback);
     }
     else {
-      testing.success('Connected to the database');
-      connection.release();
+      testing.success(callback);
     }
+    connection.release();
   });
 }
 
-function test_assetGeneratorConnection() {
+function test_assetGeneratorConnection(callback) {
   assetGenerator.connect(undefined, function(err) {
     if (err) {
-      return testing.failure(err);
+      console.log(err);
+      return testing.failure(callback);
     }
 
-    testing.success('Connected to asset generator');
+    testing.success(callback);
+  });
+}
+
+function test_assetGeneratorConnectionWrongKey(callback) {
+  assetGenerator.connect('wrongkey', function(err) {
+    if (err === 'Socket authentication failed') {
+      return testing.success(callback);
+    }
+    else {
+      testing.failure(callback);
+    }
   });
 }
 

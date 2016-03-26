@@ -8,42 +8,50 @@ var PORT = 5340;
 
 module.exports.connect = function(apiKey, callback) {
   if (!apiKey) {
-    apiKey = fs.readFileSync(path.join(__dirname, 'secrets/asset_generator_api_key.conf')).toString().split;
+    var apiKeyFile = fs.readFileSync(path.join(__dirname, 'secrets/asset_generator_api_key.conf'));
+    apiKey = apiKeyFile.toString().split('\n')[0];
   }
 
   var client = new net.Socket();
-
-  var initialSetup = true;
+  var open = false;
 
   client.connect(PORT, HOST, function() {
+    open = true;
 
     console.log('CONNECTED TO: ' + HOST + ':' + PORT);
     // Write a message to the socket as soon as the client is connected, the server will receive it as message from the client
     client.write(apiKey);
-
   });
 
-  client.on('data', function(data) {
-    data = JSON.stringify(data);
 
+  var initialSetup = true;
+
+  client.on('data', function(data) {
+    data = JSON.parse(data);
     if (initialSetup) {
       if (data.authSuccess) {
         client.sendAsync = sendAsync;
+        console.log('authenticated');
 
         return callback(false, client);
       }
       else {
-        return callback('Socket authentication failed');
+        client.end();
+        open = false;
+        callback('Socket authentication failed');
+        return;
       }
     }
   });
 
   client.on('close', function() {
-    return callback('Socket disconnected');
+    if (open) {
+      open = false;
+      callback('Socket disconnected');
+    }
   });
 
 };
-
 
 // use ids to keep track of multiple requests at the same time
 var ids = 0;
