@@ -17,12 +17,10 @@ module.exports.connect = function(apiKey, callback) {
 
   client.connect(PORT, HOST, function() {
     open = true;
-
     console.log('CONNECTED TO: ' + HOST + ':' + PORT);
     // Write a message to the socket as soon as the client is connected, the server will receive it as message from the client
     client.write(apiKey);
   });
-
 
   var initialSetup = true;
 
