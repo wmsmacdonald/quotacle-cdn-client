@@ -1,72 +1,25 @@
-var pool = require('./conf/db_connection_pool');
-//var cdnClient = require('.');
 var testing = require('testing');
-var assetGenerator = require('./asset_generator');
-
+var cdnClient = require('./');
+var process = require('process');
 
 var tests = [
-  test_databaseConnection,
-  test_assetGeneratorConnection,
-  test_assetGeneratorConnectionWrongKey
+  test_createGetDeleteAsset
 ];
 testing.run(tests, 10000, function(err, result) {
   console.log('Failures: %d', result.failures);
+  process.exit(0);
 });
 
-function test_databaseConnection(callback) {
-  pool.getConnection(function (err, connection) {
-    if (err) {
-      testing.failure(callback);
-    }
-    else {
-      testing.success(callback);
-    }
-    connection.release();
+function test_createGetDeleteAsset(callback) {
+  cdnClient.createAsset('http://www.example.com', function(asset) {
+    testing.assertEquals(asset.url, 'http://www.example.com');
+    cdnClient.getAsset(asset.id, function(fetchedAsset) {
+      testing.assertEquals(asset.url, fetchedAsset.url);
+      testing.assertEquals(asset.id, fetchedAsset.id);
+      cdnClient.deleteAsset(asset.id, function() {
+        callback();
+      });
+    });
   });
 }
-
-function test_assetGeneratorConnection(callback) {
-  assetGenerator.connect(undefined, function(err) {
-    if (err) {
-      console.log(err);
-      return testing.failure(callback);
-    }
-
-    testing.success(callback);
-  });
-}
-
-function test_assetGeneratorConnectionWrongKey(callback) {
-  assetGenerator.connect('wrongkey', function(err) {
-    if (err === 'Socket authentication failed') {
-      return testing.success(callback);
-    }
-    else {
-      testing.failure(callback);
-    }
-  });
-}
-
-function test_getExistingImageUri() {
-  cdnClient.image(1, function(err, dataUri) {
-    if (err || !dataUri) {
-      testing.failure('Could not retrieve data-uri from test image id');
-    }
-    else {
-      testing.failure('Received data-uri from test image id');
-    }
-  });
-}
-
-function test_getNonExistingImageUri() {
-  cdnClient.image(Number.MAX_SAFE_INTEGER, function(err, dataUri) {
-    if (err || !dataUri) {
-      testing.failure('Could not retrieve data-uri from test image id');
-    }
-    else {
-      testing.success('Received data-uri from test image id');
-    }
-  });
-}
-
 
