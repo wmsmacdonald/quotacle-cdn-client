@@ -11,6 +11,7 @@ testing.run(tests, 10000, function(err, result) {
 });
 
 function test_createGetDeleteAsset(callback) {
+  var cdnClient = require('./')();
   cdnClient.createAsset('http://www.example.com', function(asset) {
     testing.assertEquals(asset.url, 'http://www.example.com');
     cdnClient.getAsset(asset.id, function(fetchedAsset) {
